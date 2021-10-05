@@ -1,0 +1,259 @@
+<html>
+
+<head>
+  <meta charset=utf-8>
+  <title>Rotation Sequence</title>
+  <!-- Another THREE.JS Example by Prof. Carlos Forster from
+ Technological Institute of Aeronautics 27/8/2021 -->
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- canvas id="hicanvas" width="600" height="600"></canvas -->
+  <canvas id="offscreen" width="2048" height="1360" style="display:none"></canvas>
+  <img id="ico" width="2048" height="1360" src="static/mesa.jpg" />
+
+  <script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+    import { OrbitControls } from "https://threejs.org/examples/jsm/controls/OrbitControls.js";
+
+    const imageWidth = 2048
+    const imageHeight = 1360
+
+
+
+    var k = document.getElementById("ico");
+    var b = k.getBoundingClientRect();
+    // console.log(b);
+
+    var x = document.createElement("CANVAS");
+    x.style.position = "absolute";
+    x.width = b.width;
+    x.height = b.height;
+    x.style.top = "" + b.top + "px";
+    x.style.left = "" + b.left + "px";
+    document.body.appendChild(x);
+
+
+    function createProjCamera() {
+
+      const m = new THREE.Matrix4();
+      m.set(
+        0.73309873,  -0.079348  ,  -0.67547772,   1.5497599 ,
+        -0.24203979,   0.89771331,  -0.36814067,   2.28566293,
+         0.63559657,   0.43337594,   0.63890711, -19.26725785,
+         0.        ,   0.        ,   0.        ,   1.      ,
+      ); // calculado no script python
+      const fov = 14;
+      const aspect = 2048 / 1360;
+      const camera = new THREE.PerspectiveCamera(9, aspect, 0.001, 20000);
+
+      camera.applyMatrix4(m);
+      camera.position.set( 14.19826186,  6.42106631,  11.66329729,); // calculado no script python
+      camera.lookAt(0, 0, 0);
+      camera.setViewOffset(
+        imageWidth,
+        imageHeight,
+        177,       // calculado no script python
+        -167,      // calculado no script python
+        imageWidth,
+        imageHeight
+      );
+      camera.updateMatrixWorld();
+
+      return camera;
+    }
+    var canvas = x
+
+    const scene = new THREE.Scene()
+    const camera = createProjCamera()
+    const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas, alpha: true })
+    renderer.shadowMap.enabled = true
+
+    // adding axes lines to scene
+    var axesHelper = new THREE.AxesHelper(400)
+    axesHelper.position.set(0, 0, 0)
+    const controls = new OrbitControls( camera, renderer.domElement );
+
+    // window.onresize = canvasResize
+    // function canvasResize() {
+    //   // camera.aspect = window.innerWidth / window.innerHeight
+    //   // camera.updateProjectionMatrix();
+    // }
+
+    function createCarBase() {
+      const geometry = new THREE.BoxGeometry(4.5, 0.8, 1.8);
+      const material = new THREE.MeshLambertMaterial({ color: 0x00ffff });
+      const carBase = new THREE.Mesh(geometry, material);
+      carBase.castShadow = true
+      return carBase;
+    }
+    function createCarTop() {
+      const geometry = new THREE.BoxGeometry(3, 0.8, 1.8);
+      const material = new THREE.MeshLambertMaterial({ color: 0x00ffff });
+      
+      const carTop = new THREE.Mesh(geometry, material);
+      carTop.castShadow  = true
+      carTop.position.y += 0.8;
+      carTop.position.x -= 0.75;
+
+      return carTop;
+    }
+    function createWheels() {
+      const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.19);
+      const material = new THREE.MeshLambertMaterial({ color: 0x000000 });
+      const wheel = new THREE.Mesh(geometry, material);
+      wheel.castShadow  = true
+      wheel.position.y = -0.4;
+      wheel.rotation.x += Math.PI / 2;
+      var dz = 1 - 0.19 / 2 + 0.01;
+      var dx = 1.2;
+      var wheels = new THREE.Group()
+      var positions = [[dx, dz], [dx, -dz], [-dx, dz], [-dx, -dz]]
+      for (var i = 0; i < positions.length; i++) {
+        var w = wheel.clone()
+        w.position.x = positions[i][0]
+        w.position.z = positions[i][1]
+        wheels.add(w)
+      }
+      return wheels
+    }
+
+    const carBase = createCarBase();
+    const carTop = createCarTop();
+    const wheels = createWheels();
+
+    const car = new THREE.Group()
+
+    car.add(carBase); car.add(wheels); car.add(carTop); 
+    car.position.set(0, 0, 0)
+    car.rotation.set(0, -Math.PI, 0)
+    car.scale.set(.1, .1, .1);
+    car.castShadow  = true;
+    // scene.add( carBase )
+    scene.add(camera);
+    scene.add(car);
+    scene.add(axesHelper);
+
+    function createBox(){
+      const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+      const material = new THREE.MeshLambertMaterial( {color: 0x00ff00} );
+      const cube = new THREE.Mesh( geometry, material );
+      return cube;
+    } 
+ 
+    const cube = createBox();
+    // scene.add(cube);
+
+
+
+    var btn1 = document.createElement("BUTTON");
+    var a = document.createTextNode("Imagem");
+    btn1.appendChild(a);
+    document.body.appendChild(btn1);
+
+    btn1.onclick = function () {
+      imagem();
+    }
+
+    var imagem = function () {
+      requestAnimationFrame(imagem);
+      axesHelper.visible = false;
+      car.visible = false;
+      renderer.imagem(scene, camera);
+    }
+
+    var btn2 = document.createElement("BUTTON");
+    var b = document.createTextNode("Animacao");
+    btn2.appendChild(b);
+    document.body.appendChild(btn2);
+
+    btn2.onclick = function () {
+      animacao();
+    }
+
+    var animacao = function () {
+      requestAnimationFrame(animacao);
+      car.visible = true;
+      axesHelper.visible = false
+      renderer.animacao(scene, camera);
+    }
+
+
+    var btn3 = document.createElement("BUTTON");
+    var c = document.createTextNode("Eixos");
+    btn3.appendChild(c);
+    document.body.appendChild(btn3);
+
+    btn3.onclick = function () {
+      eixos();
+    }
+
+    var eixos = function () {
+      requestAnimationFrame(eixos);
+      axesHelper.visible = true;
+      car.visible = false;
+      renderer.eixos(scene, camera);
+    }
+
+
+
+    const light = new THREE.PointLight( '#ffffff' , 1);
+    light.position.set(-5, 1, 0);
+    light.castShadow = true;
+    scene.add( light );
+    const helperLight = new THREE.PointLightHelper(light);
+    // scene.add(helperLight);
+
+    const planeGeometry = new THREE.PlaneGeometry( 50, 50 );
+    const planeMaterial = new THREE.ShadowMaterial()
+    const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+    plane.receiveShadow = true;
+    plane.rotation.x = -Math.PI/2
+    plane.position.y = -0.08
+    // plane.visible = false;
+    console.log(car)
+    scene.add( plane );
+
+    // const color = 0xFFFFFF;
+    // const intensity = 1;
+    // const alight = new THREE.AmbientLight(color, intensity);
+    // // scene.add(alight);
+
+
+
+
+
+    const circle = { center_x: -3, center_z: -3, radius: 2 }
+    var theta = 0
+
+    function animate() {
+
+      requestAnimationFrame(animate);
+
+      car.position.x = circle.center_x + circle.radius * Math.cos(theta)
+      car.position.z = circle.center_z + circle.radius * Math.sin(theta)
+      car.position
+      // console.log(car.position)
+      theta += 0.01
+      car.rotation.y = (3 * Math.PI / 2 - theta)
+      // cube.rotation.x = theta
+      renderer.render(scene, camera)
+    }
+
+
+
+    console.log(car)
+    // console.log(camera)
+    animate()
+
+  </script>
+
+</body>
+
+</html>
