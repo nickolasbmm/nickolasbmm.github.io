@@ -2,7 +2,7 @@
 
 <head>
   <meta charset=utf-8>
-  <title>Rotation Sequence</title>
+  <title>Projeto 1 - CCI36 - 2021</title>
   <!-- Another THREE.JS Example by Prof. Carlos Forster from
  Technological Institute of Aeronautics 27/8/2021 -->
   <style>
@@ -40,7 +40,7 @@
 
   <script type="module">
     import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-    import { OrbitControls } from "https://threejs.org/examples/jsm/controls/OrbitControls.js";
+    // import { OrbitControls } from "https://threejs.org/examples/jsm/controls/OrbitControls.js";
 
     const imageWidth = 2048
     const imageHeight = 1360
@@ -102,7 +102,7 @@
     // adding axes lines to scene
     var axesHelper = new THREE.AxesHelper(400)
     axesHelper.position.set(0, 0, 0)
-    const controls = new OrbitControls( camera, renderer.domElement );
+    // const controls = new OrbitControls( camera, renderer.domElement );
 
     // window.onresize = canvasResize
     // function canvasResize() {
@@ -164,12 +164,14 @@
     scene.add(car);
     scene.add(axesHelper);
 
-    car.visible = false;
-    axesHelper.visible = false;
-    gridHelper.visible = false;
+    car.visible = true;
+    axesHelper.visible = true;
+    gridHelper.visible = true;
 
     var chkCar = document.getElementById("chkCar");
     var chkHelper = document.getElementById("chkHelper");
+    chkCar.checked = true;
+    chkHelper.checked = true;
 
     document.getElementById("chkCar").onclick = function() {
         if (chkCar.checked) {
