@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+        <script type="module">
+
+            // Find the latest version by visiting https://cdn.skypack.dev/three.
+            import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+            import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js';
+
+          
+
+			// Creating camera, scene and renderer
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			const renderer = new THREE.WebGLRenderer();
+
+			// setting up renderer and displaying it on screen
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+            // adding camera control
+            var controls = new OrbitControls( camera, renderer.domElement )
+
+            // adding axes lines to scene
+            var axesHelper = new THREE.AxesHelper( 5 )
+            scene.add(axesHelper)
+
+            function createCarBase(){
+                const geometry = new THREE.BoxGeometry(4.5, 0.8, 1.8);
+                const material = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
+                const carBase = new THREE.Mesh( geometry, material );
+                return carBase;
+            }
+            function createCarTop(){
+                const geometry = new THREE.BoxGeometry(3, 0.8, 1.8);
+                const material = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
+                const carTop = new THREE.Mesh( geometry, material );
+                carTop.position.y += 0.8;
+                carTop.position.x -= 0.75;
+                return carTop;
+            }
+
+            function createWheels(){
+                const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.19);
+                const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+                const wheel = new THREE.Mesh( geometry, material );
+                wheel.position.y = -0.4;
+                wheel.rotation.x += Math.PI / 2;
+                var dz = 0.9 - 0.19/2 + 0.01;
+                var dx = 1.2;
+                var wheels = new THREE.Group()
+                var positions = [[dx,dz], [dx, -dz], [-dx, dz], [-dx, -dz]]
+                for (var i = 0; i<positions.length; i++){
+                    var w = wheel.clone()
+                    w.position.x = positions[i][0]
+                    w.position.z = positions[i][1]
+                    wheels.add(w)
+                }
+                return wheels
+            }
+
+            const carBase = createCarBase();
+            const carTop = createCarTop();
+            const wheels = createWheels();
+            const car = new THREE.Group()
+            car.add( carBase ); car.add( carTop ); car.add( wheels )
+            
+			scene.add( car );
+
+			camera.position.x = 10;
+            camera.lookAt(0,0,0);
+
+			// animate function, renders the scene and takes a camera
+			function animate() {
+				requestAnimationFrame( animate );
+				renderer.render( scene, camera );
+			}
+			animate();
+		</script>
+	</body>
+</html>
